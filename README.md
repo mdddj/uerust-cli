@@ -34,10 +34,10 @@ uerust doctor                 # 环境自检，出问题先跑这个
 
 ```
 Rust
-  [OK] cargo            /Users/ldd/.cargo/bin/cargo  (cargo 1.98.0)
+  [OK] cargo            ~/.cargo/bin/cargo  (cargo 1.98.0)
   [OK] rustc            rustc 1.98.0
   [OK] rustup shim      13/13 个软链全部可解析
-  [OK] PATH             /Users/ldd/.cargo/bin 在 PATH 里
+  [OK] PATH             ~/.cargo/bin 在 PATH 里
   [ !] cargo 别名      ~/.zshrc 里有 alias cargo=…
 
 Unreal Engine
