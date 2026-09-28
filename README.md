@@ -58,7 +58,7 @@ CI Runner
 
 - **rustup shim 完整性**：`~/.cargo/bin` 里那批是相对软链，全指向同目录的 `rustup`。
   本体一丢 13 个全断，cargo 从机器上"消失"，但 toolchain 完好 —— 光看 `~/.rustup` 是查不出来的。
-- **cargo 别名**：`alias cargo=...` 会盖住真命令，报出来的是 `command not found: mbx` 这种看不懂的错。
+- **cargo 别名**：`alias cargo=...` 会盖住真命令，报出来的是 `command not found: <你的别名>` 这种看不懂的错。
 - **CI runner 工具链隔离**：本机有 GitHub Actions 自托管 runner 时，它和本地用户共用
   `~/.cargo` / `~/.rustup`，CI 跑 `rustup toolchain install/default` 会直接改你本地工具链。
   检查项读的是**两个真正生效的位置**：`~/actions-runner/.path`（PATH）和 launchd plist
