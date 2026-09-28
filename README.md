@@ -153,3 +153,7 @@ try list.append(gpa, 'x');        // 要传 allocator
 模板全在 `src/templates.zig`，用 `@@PLUGIN@@` / `@@LOWER@@` / `@@UPPER@@` / `@@RUST_DIR@@` / `@@LIB@@` 当占位符。
 
 **故意不用 `std.fmt` 的 `{}`**：模板正文（尤其 `.cs`）里全是花括号，用它得逐个转义成 `{{` `}}`。现在是单趟扫描字符串替换，见 `gen.zig` 的 `render()`。
+
+## License
+
+MIT —— 见 [LICENSE](LICENSE)。
