@@ -90,9 +90,11 @@ pub fn run(
     }
 
     out.print(io, "\n下一步：\n", .{});
-    out.print(io, "  1. cd {s}\n", .{root});
-    out.print(io, "  2. uerust build .            # cargo build --release + 拷库到 Binaries/\n", .{});
-    out.print(io, "  3. 把 {s} 放进 UE 项目的 Plugins/ 下，重新生成项目文件再编译\n", .{name});
+    out.print(io, "  1. cd {s} && uerust build .    # cargo build --release + 拷库到 Binaries/\n", .{root});
+    out.print(io, "  2. 把 {s}/ 拷进 <你的项目>/Plugins/ 下（UE 会自动发现，uproject 不用改）\n", .{name});
+    out.print(io, "     想显式启用就在 .uproject 里补一条，数组已存在就插进去、别整段替换：\n", .{});
+    out.print(io, "       \"Plugins\": [ {{ \"Name\": \"{s}\", \"Enabled\": true }} ]\n", .{name});
+    out.print(io, "  3. 重新生成项目文件 + 编译，编辑器里「编辑 > 插件」确认已启用\n", .{});
     out.print(io, "  4. 蓝图搜 \"Fetch Markdown From Url\"\n", .{});
 }
 

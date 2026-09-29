@@ -21,12 +21,85 @@ uerust build .                # cargo build --release，库拷到 Binaries/Mac/
 uerust doctor                 # 环境自检，出问题先跑这个
 ```
 
-然后把 `UEHtml2Md/` 放进 UE 项目的 `Plugins/` 下，重新生成项目文件、编译。蓝图里搜 **Fetch Markdown From Url**。
+接进 UE 项目的完整步骤见下面「[接进 UE 项目](#接进-ue-项目)」。
 
 `uerust new` 参数：
 
 - `--out <目录>`：生成到别处，默认 `.`
 - `--force`：目标目录已存在时也照样写
+
+## 接进 UE 项目
+
+插件放哪，三选一。放好之后流程都一样，见下面「生效顺序」。
+
+### A. 项目内 `Plugins/`（默认，最简）
+
+直接生到项目的 `Plugins/` 下：
+
+```bash
+cd /path/to/MyGame
+uerust new UEHtml2Md --out Plugins
+uerust build Plugins/UEHtml2Md
+```
+
+UE 会自动发现 `<项目>/Plugins/` 下的插件，**`.uproject` 一个字都不用改**。
+
+### B. 写进 `.uproject`（显式启用）
+
+想让团队和 CI 拿到同一份启用状态，就在主项目的 `MyGame.uproject` 里加一条：
+
+```json
+{
+    "FileVersion": 3,
+    "EngineAssociation": "5.8",
+    "Plugins": [
+        {
+            "Name": "UEHtml2Md",
+            "Enabled": true
+        }
+    ]
+}
+```
+
+`"Plugins"` 数组已经存在就往里加一个对象，不要整段替换。改完在「编辑 > 插件」里能搜到 `UEHtml2Md` 且状态是已启用。
+
+### C. 插件放在项目目录之外
+
+`.uproject` 支持外部插件目录（UE 4.24+，路径相对于 `.uproject`）：
+
+```json
+{
+    "FileVersion": 3,
+    "AdditionalPluginDirectories": [
+        "../SharedPlugins"
+    ],
+    "Plugins": [
+        {
+            "Name": "UEHtml2Md",
+            "Enabled": true
+        }
+    ]
+}
+```
+
+⚠️ 只在编辑器和源码构建里有效：烤数据时引擎会清空 `AdditionalPluginDirectories`。要出包就把插件搬进 `<项目>/Plugins/`。
+
+### 生效顺序
+
+1. 按 A / B / C 把插件放好
+2. `uerust build <插件目录>` —— 跳过这步 `Binaries/<平台>/` 是空的，插件启动时 `LoadRustLibrary` 会失败
+3. 重新生成项目文件并编译（Mac：`"$UE/Engine/Build/BatchFiles/Mac/GenerateProjectFiles.sh" -project="$PWD/MyGame.uproject" -game`，`UE` 是引擎安装目录）
+4. 开编辑器，「编辑 > 插件」确认启用，蓝图搜 **Fetch Markdown From Url**
+
+### 出问题先查这几处
+
+| 症状 | 原因 | 修 |
+|---|---|---|
+| 插件列表里搜不到 | 目录层级多了一层 | 必须正好是 `<项目>/Plugins/UEHtml2Md/UEHtml2Md.uplugin` |
+| 编译过了但 `IsAvailable()` 是 false | Rust 库没构建、或平台目录不对 | 跑 `uerust build <插件目录>`，确认 `Binaries/Mac/libuehtml2md_dylib.dylib` 在 |
+| 打包后 dlopen 失败 | 库被塞进 `.pak` | `Build.cs` 里保持 `RuntimeDependencies.Add(..., StagedFileType.NonUFS)` |
+| 改了 Rust 没反应 | 只编了 C++ | 再跑一次 `uerust build`，然后重编 C++ |
+
 
 ## uerust doctor
 

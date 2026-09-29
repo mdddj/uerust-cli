@@ -14,6 +14,8 @@ const usage =
     \\        Source/<PluginName>/         C++ 模块 + 蓝图异步节点
     \\        Source/<小写名>-dylib/       Rust cdylib crate（含 cbindgen）
     \\      默认生成到 ./<PluginName>
+    \\      直接生在项目里：uerust new Foo --out /path/to/MyGame/Plugins
+    \\      接进项目的完整步骤（.uproject 怎么写）见 README 的「接进 UE 项目」
     \\
     \\  uerust build <插件目录>
     \\      在插件的 Rust crate 里跑 cargo build --release，

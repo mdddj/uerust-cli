@@ -586,9 +586,35 @@ pub const plugin_readme =
     \\  Binaries/<Platform>/     uerust build 把库拷到这里
     \\```
     \\
+    \\## 接进 UE 项目
+    \\
+    \\**最简单**：把 `@@PLUGIN@@/` 整个拷进 `<项目>/Plugins/` 下。
+    \\UE 会自动发现，`.uproject` 一个字不用改。
+    \\
+    \\**要显式启用**（团队/CI 同步状态，或插件不在项目目录里）：在 `MyGame.uproject`
+    \\的 `"Plugins"` 数组里加一个对象（数组已存在就插进去，别整段替换）：
+    \\
+    \\```json
+    \\"Plugins": [
+    \\    {
+    \\        "Name": "@@PLUGIN@@",
+    \\        "Enabled": true
+    \\    }
+    \\]
+    \\```
+    \\
+    \\插件放在项目目录之外时，再加一条外部插件目录（路径相对 `.uproject`，
+    \\只对编辑器和源码构建有效，烤数据时会被引擎清空）：
+    \\
+    \\```json
+    \\"AdditionalPluginDirectories": [
+    \\    "../SharedPlugins"
+    \\]
+    \\```
+    \\
     \\## 怎么用
     \\
-    \\1. 把这个目录拷进 UE 项目的 `Plugins/` 下（或者直接 `uerust new` 到那个位置）。
+    \\1. 放在 `<项目>/Plugins/@@PLUGIN@@/`，或按上面写进 `.uproject`。
     \\2. 构建 Rust 库：
     \\
     \\   ```
@@ -596,8 +622,10 @@ pub const plugin_readme =
     \\   ```
     \\
     \\   它会跑 `cargo build --release`，然后把产物拷到 `Binaries/<Platform>/`。
+    \\   **跳过这步 `Binaries/<Platform>/` 是空的，插件启动时加载库会失败。**
     \\3. 重新生成项目文件并编译 C++ 模块。
-    \\4. 蓝图里搜 **Fetch Markdown From Url**，接 `OnSuccess` / `OnFail`。
+    \\4. 编辑器里「编辑 > 插件」确认已启用，蓝图搜 **Fetch Markdown From Url**，
+    \\   接 `OnSuccess` / `OnFail`。
     \\
     \\## 改 Rust 代码时
     \\
