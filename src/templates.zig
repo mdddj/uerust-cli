@@ -586,6 +586,7 @@ pub const plugin_readme =
     \\      build.rs           cargo build 时跑 cbindgen 生成头文件
     \\      src/lib.rs         业务逻辑 + FFI 导出
     \\      include/            cbindgen 产物（@@PLUGIN@@_ffi.h）
+    \\  .vscode/settings.json   把 rust-analyzer 指到 @@RUST_DIR@@ 这个 crate
     \\  Binaries/<Platform>/     uerust build 把库拷到这里
     \\  .agent/skills/           给 AI 助手的 skill（见「给 AI 助手的 skill」一节）
     \\```
@@ -640,6 +641,18 @@ pub const plugin_readme =
     \\- FFI 函数必须 `#[no_mangle] pub extern "C"`，参数和返回值只能是 C 类型。
     \\- 返回 `*mut c_char` 的函数必须配一个 free 函数，C++ 侧用完立刻调，否则泄漏。
     \\
+    \\## 在 VSCode 里开发
+    \\
+    \\Rust crate 在 `Source/@@RUST_DIR@@/` 下，插件根没有 `Cargo.toml`，而 rust-analyzer
+    \\只在工作区根目录找 `Cargo.toml` —— 直接在插件目录打开 VSCode，Rust 文件会
+    \\**没有补全、没有错误提示**，得单独进 crate 目录再开一个窗口才正常。
+    \\
+    \\`.vscode/settings.json` 里已经用 `rust-analyzer.linkedProjects` 指好了路，
+    \\所以直接打开插件目录就能改 Rust。
+    \\
+    \\别改成在插件根放一个 `Cargo.toml` workspace：那会把 `target/` 挪到插件根，
+    \\`uerust build` 找构建产物的路径就对不上了。
+    \\
     \\## 给 AI 助手的 skill
     \\
     \\`.agent/skills/` 下带了两个 skill（纯 Markdown，人和 AI 都能读）：
@@ -680,6 +693,24 @@ pub const skill_rust_ue_plugin = @embedFile("skills/rust-ue-plugin/SKILL.md");
 ///
 /// 这个插件的维护手册，按插件名替换占位符生成。正文在 src/skills/plugin-manual/SKILL.md。
 pub const skill_plugin_manual = @embedFile("skills/plugin-manual/SKILL.md");
+
+/// <Plugin>/.vscode/settings.json
+///
+/// rust-analyzer 只在打开的工作区根目录找 Cargo.toml。插件根没有 Cargo.toml
+/// （crate 在 Source/<rust_dir>/ 下），所以要显式指路：不然在插件目录里打开
+/// VSCode 时 Rust 文件既没补全也没错误提示，得单独进 crate 目录再开一个窗口。
+pub const vscode_settings =
+    \\{
+    \\    // rust-analyzer 只在工作区根目录找 Cargo.toml，而本插件的 crate 在
+    \\    // Source/@@RUST_DIR@@/ 下，这里显式指定，省得为改 Rust 单独开一个 VSCode 窗口。
+    \\    // 路径相对插件根；不要改成在插件根加 Cargo.toml 的 workspace ——
+    \\    // 那会把 target/ 挪到插件根，uerust build 找库的路径就对不上了。
+    \\    "rust-analyzer.linkedProjects": [
+    \\        "Source/@@RUST_DIR@@/Cargo.toml"
+    \\    ]
+    \\}
+    \\
+;
 
 /// <Plugin>/.gitignore
 pub const gitignore =

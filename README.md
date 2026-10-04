@@ -157,11 +157,16 @@ UEHtml2Md/
       build.rs                       cargo build 时跑 cbindgen
       src/lib.rs                     业务逻辑 + 3 个 no_mangle 导出
       include/UEHtml2Md_ffi.h        cbindgen 产物
+  .vscode/settings.json         rust-analyzer 指到 Source/ 下那个 crate
   .agent/skills/                给 AI 助手的 skill（见下）
     rust-ue-plugin/SKILL.md         通用「Rust 核心 + UE5 插件」流程
     uehtml2md-plugin/SKILL.md       这个插件的维护手册
   Binaries/Mac/libuehtml2md_dylib.dylib
 ```
+
+生成物里有两样是给工具看的：`.vscode/settings.json` 把 rust-analyzer 指到
+`Source/<小写名>-dylib/Cargo.toml` —— 插件根没有 `Cargo.toml`，不指路的话在插件目录里
+打开 VSCode 一点 Rust 补全都没有（得单独进 crate 目录开一个窗口）；`.agent/skills/` 见下节。
 
 ## 生成出来的 skill
 

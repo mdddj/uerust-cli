@@ -34,6 +34,7 @@ version: 1
 - `Binaries/`、`Intermediate/`、`Source/*-dylib/target/` 不进版本库（`.gitignore` 已覆盖），别手滑 `git add -f`。
 - 公开头文件里派生 `UUserWidget` 时，`"UMG"` 必须进 Build.cs 的 `PublicDependencyModuleNames`：Engine 私有依赖不传递，只补 include 路径会编译通过但链接失败。
 - 无头 / 命令行环境没有 Slate 应用：UI 视觉与真实鼠标键盘只能在 PIE 验证，逻辑要能脱离 Slate 跑（`FSlateApplicationBase::IsInitialized()` 闸门）。
+- 在插件目录里打开 VSCode 却没有 Rust 补全/报错：`.vscode/settings.json` 里的 `rust-analyzer.linkedProjects` 被删了或被覆盖了。crate 在 `Source/@@RUST_DIR@@/`，插件根没有 `Cargo.toml`，rust-analyzer 不会自己找到它。别改用「插件根放一个 `Cargo.toml` workspace」的办法：那会把 `target/` 挪到插件根，`uerust build` 找构建产物的路径就对不上了。
 
 ## Verification
 1. `cd Source/@@RUST_DIR@@ && cargo test` 全绿。

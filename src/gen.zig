@@ -42,6 +42,7 @@ pub fn run(
         .{ .path = "@@PLUGIN@@.uplugin", .tmpl = t.uplugin },
         .{ .path = "README.md", .tmpl = t.plugin_readme },
         .{ .path = ".gitignore", .tmpl = t.gitignore },
+        .{ .path = ".vscode/settings.json", .tmpl = t.vscode_settings },
         .{ .path = ".agent/skills/rust-ue-plugin/SKILL.md", .tmpl = t.skill_rust_ue_plugin },
         .{ .path = ".agent/skills/@@LOWER@@-plugin/SKILL.md", .tmpl = t.skill_plugin_manual },
         .{ .path = "Source/@@PLUGIN@@/@@PLUGIN@@.Build.cs", .tmpl = t.build_cs },
@@ -102,6 +103,8 @@ pub fn run(
     out.print(io, "       rust-ue-plugin          通用「Rust 核心 + UE5 插件」流程\n", .{});
     out.print(io, "       {s}-plugin  这个插件的维护手册\n", .{lower});
     out.print(io, "     想让 skill 覆盖整个 UE 项目而不只是插件目录，把 .agent/ 拷到 <项目>/ 根下\n", .{});
+    out.print(io, "  6. 改 Rust：VSCode 直接打开插件目录就行 —— .vscode/settings.json 已把\n", .{});
+    out.print(io, "     rust-analyzer 指到 Source/{s}/，不用单独开窗口\n", .{rust_dir});
 }
 
 fn validateName(name: []const u8) !void {
