@@ -9,6 +9,9 @@
 //!   @@UPPER@@    全大写，例如 UEHTML2MD（用作模块导出宏前缀、头文件 include guard）
 //!   @@RUST_DIR@@ Rust crate 目录名 = @@LOWER@@-dylib
 //!   @@LIB@@      Rust 库名 = @@LOWER@@_dylib（产物 lib@@LIB@@.dylib / @@LIB@@.dll）
+//!
+//! 例外：两个 skill 的正文是 src/skills/ 下的 .md，用 @embedFile 嵌进来
+//! （见本文件末尾 skill_rust_ue_plugin / skill_plugin_manual）。
 
 /// <Plugin>/<Plugin>.uplugin
 pub const uplugin =
@@ -584,6 +587,7 @@ pub const plugin_readme =
     \\      src/lib.rs         业务逻辑 + FFI 导出
     \\      include/            cbindgen 产物（@@PLUGIN@@_ffi.h）
     \\  Binaries/<Platform>/     uerust build 把库拷到这里
+    \\  .agent/skills/           给 AI 助手的 skill（见「给 AI 助手的 skill」一节）
     \\```
     \\
     \\## 接进 UE 项目
@@ -636,6 +640,18 @@ pub const plugin_readme =
     \\- FFI 函数必须 `#[no_mangle] pub extern "C"`，参数和返回值只能是 C 类型。
     \\- 返回 `*mut c_char` 的函数必须配一个 free 函数，C++ 侧用完立刻调，否则泄漏。
     \\
+    \\## 给 AI 助手的 skill
+    \\
+    \\`.agent/skills/` 下带了两个 skill（纯 Markdown，人和 AI 都能读）：
+    \\
+    \\- `rust-ue-plugin/SKILL.md` —— 「Rust 核心 + UE5 插件」的通用流程：分层、FFI 约定、cbindgen ABI、
+    \\  低层桥接、友好层、最小示例、三层验证，以及踩过的坑。
+    \\- `@@LOWER@@-plugin/SKILL.md` —— 这个插件自己的维护手册：分层地图、`uerust build`、
+    \\  FFI 两侧同步改法、编译与验证命令、不能碰的不变量。
+    \\
+    \\认识 `.agent/skills/`（或 `.agents/skills/`）的 agent 工具在项目根会直接发现它们。
+    \\想让 skill 覆盖整个 UE 项目而不只是插件目录，把 `.agent/` 拷到 `<项目>/` 根下。
+    \\
     \\## 几个设计取舍
     \\
     \\- **不静态链接 Rust 库**，全部走 `GetDllHandle` + `GetDllExport`。
@@ -652,6 +668,18 @@ pub const plugin_readme =
     \\（退化写法，库可能被打进 .pak，那时运行时 dlopen 会失败）。
     \\
 ;
+
+/// <Plugin>/.agent/skills/rust-ue-plugin/SKILL.md
+///
+/// 正文在 src/skills/rust-ue-plugin/SKILL.md —— 那是全局 skill 的逐字快照，
+/// 用 @embedFile 直接嵌进来，避免把 7KB 中文 Markdown 抄成 Zig 字符串字面量。
+/// 全局那份更新后同步一次：cp ~/.pi/agent/pi-hermes-memory/skills/rust-ue-plugin/SKILL.md src/skills/rust-ue-plugin/SKILL.md
+pub const skill_rust_ue_plugin = @embedFile("skills/rust-ue-plugin/SKILL.md");
+
+/// <Plugin>/.agent/skills/<小写名>-plugin/SKILL.md
+///
+/// 这个插件的维护手册，按插件名替换占位符生成。正文在 src/skills/plugin-manual/SKILL.md。
+pub const skill_plugin_manual = @embedFile("skills/plugin-manual/SKILL.md");
 
 /// <Plugin>/.gitignore
 pub const gitignore =

@@ -157,8 +157,23 @@ UEHtml2Md/
       build.rs                       cargo build 时跑 cbindgen
       src/lib.rs                     业务逻辑 + 3 个 no_mangle 导出
       include/UEHtml2Md_ffi.h        cbindgen 产物
+  .agent/skills/                给 AI 助手的 skill（见下）
+    rust-ue-plugin/SKILL.md         通用「Rust 核心 + UE5 插件」流程
+    uehtml2md-plugin/SKILL.md       这个插件的维护手册
   Binaries/Mac/libuehtml2md_dylib.dylib
 ```
+
+## 生成出来的 skill
+
+`uerust new` 会在插件目录里带上两个 skill，放在 `.agent/skills/` 下：
+
+| skill | 里面是什么 |
+|---|---|
+| `rust-ue-plugin` | 「Rust 核心 + UE5 插件」的通用流程：uerust 骨架 → Rust 分层 → FFI 约定 → cbindgen + decltype ABI → 低层桥接 → 友好层 → 零资产最小示例 → 三层验证，外加坑清单和验收标准 |
+| `<插件小写名>-plugin` | 这个插件自己的维护手册：分层文件地图、`uerust build .`、FFI 两侧同步改法、编译与验证命令、不能碰的不变量 |
+
+认识 `.agent/skills/`（或 `.agents/skills/`）的 agent 工具在项目根就会自动发现它们——插件目录通常就是它自己的 git 仓库根，直接开箱可用。
+想让 skill 覆盖整个 UE 项目（而不只是插件目录），把 `.agent/` 拷一份到 `<项目>/` 根下。
 
 ## 和博客那版比，改掉了什么
 
@@ -209,6 +224,10 @@ try list.append(gpa, 'x');        // 要传 allocator
 
 另外：**多行字符串字面量里不能有真实制表符**（只能空格），编译器会报 `string literal contains invalid byte: '\t'`。
 
+0.17 的差异：`Build` 结构体去掉了 `args` 字段（`zig build run -- <参数>` 不再转发给程序）。
+`build.zig` 里用 `if (comptime @hasField(std.Build, "args"))` 包住了那段，0.16 和 0.17 都能编过；
+0.17 上 `zig build run` 只是不再带参数。
+
 ## cargo 定位
 
 `uerust build` 不假设 `~/.cargo/bin/cargo` 能用（rustup 的 shim 断链时它就是个死链）。它按顺序试：
@@ -224,6 +243,12 @@ try list.append(gpa, 'x');        // 要传 allocator
 ## 改模板
 
 模板全在 `src/templates.zig`，用 `@@PLUGIN@@` / `@@LOWER@@` / `@@UPPER@@` / `@@RUST_DIR@@` / `@@LIB@@` 当占位符。
+
+两个 skill 的正文不在 `.zig` 里，在 `src/skills/`，用 `@embedFile` 嵌进二进制：
+
+- `src/skills/rust-ue-plugin/SKILL.md` —— 全局 skill（`~/.pi/agent/pi-hermes-memory/skills/rust-ue-plugin/`）的逐字快照。
+  全局那份更新后同步一次：`cp ~/.pi/agent/pi-hermes-memory/skills/rust-ue-plugin/SKILL.md src/skills/rust-ue-plugin/SKILL.md`
+- `src/skills/plugin-manual/SKILL.md` —— 生成 `<插件小写名>-plugin` 那个维护手册的模板，占位符同上。
 
 **故意不用 `std.fmt` 的 `{}`**：模板正文（尤其 `.cs`）里全是花括号，用它得逐个转义成 `{{` `}}`。现在是单趟扫描字符串替换，见 `gen.zig` 的 `render()`。
 

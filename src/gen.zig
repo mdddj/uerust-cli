@@ -42,6 +42,8 @@ pub fn run(
         .{ .path = "@@PLUGIN@@.uplugin", .tmpl = t.uplugin },
         .{ .path = "README.md", .tmpl = t.plugin_readme },
         .{ .path = ".gitignore", .tmpl = t.gitignore },
+        .{ .path = ".agent/skills/rust-ue-plugin/SKILL.md", .tmpl = t.skill_rust_ue_plugin },
+        .{ .path = ".agent/skills/@@LOWER@@-plugin/SKILL.md", .tmpl = t.skill_plugin_manual },
         .{ .path = "Source/@@PLUGIN@@/@@PLUGIN@@.Build.cs", .tmpl = t.build_cs },
         .{ .path = "Source/@@PLUGIN@@/Public/@@PLUGIN@@.h", .tmpl = t.module_h },
         .{ .path = "Source/@@PLUGIN@@/Private/@@PLUGIN@@.cpp", .tmpl = t.module_cpp },
@@ -96,6 +98,10 @@ pub fn run(
     out.print(io, "       \"Plugins\": [ {{ \"Name\": \"{s}\", \"Enabled\": true }} ]\n", .{name});
     out.print(io, "  3. 重新生成项目文件 + 编译，编辑器里「编辑 > 插件」确认已启用\n", .{});
     out.print(io, "  4. 蓝图搜 \"Fetch Markdown From Url\"\n", .{});
+    out.print(io, "  5. 给 AI 助手用：.agent/skills/ 下已带 2 个 skill\n", .{});
+    out.print(io, "       rust-ue-plugin          通用「Rust 核心 + UE5 插件」流程\n", .{});
+    out.print(io, "       {s}-plugin  这个插件的维护手册\n", .{lower});
+    out.print(io, "     想让 skill 覆盖整个 UE 项目而不只是插件目录，把 .agent/ 拷到 <项目>/ 根下\n", .{});
 }
 
 fn validateName(name: []const u8) !void {
